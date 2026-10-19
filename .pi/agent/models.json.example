@@ -1,0 +1,25 @@
+{
+  "_comment": "Copy to ~/.pi/agent/models.json, then set baseUrl to your own host.",
+  "providers": {
+    "local": {
+      "baseUrl": "http://REPLACE-ME-LLM-HOST:PORT/v1",
+      "api": "openai-completions",
+      "apiKey": "none",
+      "models": [
+        {
+          "id": "qwen3.8-flash-next",
+          "name": "Qwen 3.8 Flash Next (local)",
+          "maxTokens": 32768,
+          "contextWindow": 131072,
+          "input": ["text"],
+          "reasoning": true,
+          "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+          "compat": {
+            "supportsDeveloperRole": false,
+            "supportsReasoningEffort": false
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Wrapper for the dotfiles repo whose git-dir lives in ~/.dotfiles
+# and whose work-tree is $HOME.
+#
+# Usage:  dotfiles <git subcommand> [args...]
+#         dotfiles status
+#         dotfiles diff
+#         dotfiles add .vimrc && dotfiles commit -m "..."
+#
+# A git *alias* would be nicer, but ~/.gitconfig is bind-mounted read-only
+# inside the pi sandbox, so a PATH script is used instead.
+set -euo pipefail
+exec git --git-dir="${HOME}/.dotfiles" --work-tree="${HOME}" "$@"

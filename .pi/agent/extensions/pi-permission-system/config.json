@@ -1,0 +1,50 @@
+{
+  "permission": {
+    "*": "allow",
+    "bash": {
+      "*": "ask",
+      "ls*": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "echo *": "allow",
+      "pwd*": "allow",
+      "cd *": "allow",
+      "which *": "allow",
+      "whoami": "allow",
+      "date": "allow",
+      "find *": "allow",
+      "grep *": "allow",
+      "rg *": "allow",
+      "for *": "allow",
+      "wc *": "allow",
+      "sort *": "allow",
+      "du *": "allow",
+      "df *": "allow",
+      "file *": "allow",
+      "type *": "allow",
+      "env": "allow",
+      "git status*": "allow",
+      "git log*": "allow",
+      "git diff*": "allow",
+      "git show*": "allow",
+      "git branch*": "allow",
+      "git remote*": "allow",
+      "node -v": "allow",
+      "npm -v": "allow",
+      "python --version": "allow",
+      "pip list*": "allow",
+      "rm -rf *": "deny",
+      "sudo *": "deny",
+      "dd *": "deny",
+      "mkfs *": "deny"
+    },
+    "edit": {
+      "*": "ask"
+    },
+    "write": {
+      "*": "ask"
+    },
+    "external_directory": "allow"
+  }
+}
