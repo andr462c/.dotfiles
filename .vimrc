@@ -101,6 +101,26 @@ let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
 let g:lsp_semantic_enabled = 1
 
+" vim-lsp only maps the standard LSP token types; rust-analyzer sends ~58 and
+" the rest would fall back to Normal. Map them explicitly (must come after the
+" colorscheme, which clears highlights, so vim-lsp leaves them alone).
+highlight link LspSemanticBuiltinType      Type
+highlight link LspSemanticSelfTypeKeyword  Type
+highlight link LspSemanticTypeAlias        Type
+highlight link LspSemanticConstParameter   Type
+highlight link LspSemanticSelfKeyword      Keyword
+highlight link LspSemanticLifetime         Identifier
+highlight link LspSemanticMacroBang        Macro
+highlight link LspSemanticProcMacro        Macro
+highlight link LspSemanticAttribute        PreProc
+highlight link LspSemanticDerive           PreProc
+highlight link LspSemanticBoolean          Constant
+highlight link LspSemanticNumber           Number
+highlight link LspSemanticFormatSpecifier  Special
+highlight link LspSemanticEscapeSequence   Special
+highlight link LspSemanticStatic           Constant
+highlight link LspSemanticUnresolvedReference Error
+
 " gutter signs: E W I H by severity, A where a code action is available
 let g:lsp_diagnostics_signs_error = {'text': 'E'}
 let g:lsp_diagnostics_signs_warning = {'text': 'W'}
