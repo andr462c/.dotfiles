@@ -9,6 +9,7 @@
 !/README.md
 
 !/.vimrc
+!/.gitconfig.common
 
 !/.pi/
 /.pi/*

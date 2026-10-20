@@ -1,0 +1,21 @@
+# Shared git config, tracked in the dotfiles repo (git-dir: ~/.dotfiles,
+# work-tree: $HOME). Git does not read this file directly: each machine's own
+# ~/.gitconfig includes it, then applies its own overrides.
+#
+#   ~/.gitconfig          per-machine, untracked (caught by the leading /*)
+#   ~/.gitconfig.common   this file, tracked, identical everywhere
+#
+# Includes are applied in place, so the LAST definition of a single-value key
+# wins. Keeping the [include] at the TOP of ~/.gitconfig is what lets a machine
+# override anything below. See who won with:
+#
+#   git config --show-origin --get-all user.email
+#
+# Put per-machine values in ~/.gitconfig: email, GPG/ssh signing key, paths
+# that differ, credential helper. Never secrets -- use a credential helper.
+
+[user]
+	name = Andreas
+
+[core]
+	editor = vim
