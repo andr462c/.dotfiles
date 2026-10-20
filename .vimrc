@@ -95,11 +95,18 @@ set completeopt=menu,menuone,noinsert,noselect
 
 
 let g:lsp_hover_ui = 'preview' 
-let g:lsp_signs_enabled = 1     " diagnostic signs in the gutter
 let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
 
+" gutter signs: E W I H by severity, A where a code action is available
+let g:lsp_diagnostics_signs_error = {'text': 'E'}
+let g:lsp_diagnostics_signs_warning = {'text': 'W'}
+let g:lsp_diagnostics_signs_information = {'text': 'I'}
+let g:lsp_diagnostics_signs_hint = {'text': 'H'}
+let g:lsp_document_code_action_signs_hint = {'text': 'A'}
+
 " TODO consider: let g:lsp_settings_filetype_python = 'pyright-langserver'  " use pyright for Python
+let g:lsp_settings_filetype_rust = 'rust-analyzer' 
 
 " asyncomplete popup
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -135,3 +142,8 @@ function! s:popup_scroll(count, key) abort
   endif
   return a:key
 endfunction
+
+" TODO
+" Show git changes on the side?
+" Search for treesiter symboles?
+" More colors?
