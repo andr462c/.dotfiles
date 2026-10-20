@@ -49,6 +49,8 @@ set number
 set signcolumn=yes        " always reserve the gutter, so LSP signs don't shift the text
 set mouse=a
 set clipboard=unnamedplus
+set termguicolors         " 24-bit colours (drop this if your terminal misrenders)
+colorscheme slate
 
 set expandtab           " Convert tabs to spaces
 set tabstop=4           " 1 tab = 4 spaces
@@ -94,10 +96,10 @@ nnoremap <C-l> <C-w>l
 set hidden                      " allow buffers to hide while LSP keeps them loaded
 set completeopt=menu,menuone,noinsert,noselect
 
-
 let g:lsp_hover_ui = 'preview' 
 let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
+let g:lsp_semantic_enabled = 1
 
 " gutter signs: E W I H by severity, A where a code action is available
 let g:lsp_diagnostics_signs_error = {'text': 'E'}
