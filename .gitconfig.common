@@ -14,9 +14,6 @@
 # Put per-machine values in ~/.gitconfig: email, GPG/ssh signing key, paths
 # that differ, credential helper. Never secrets -- use a credential helper.
 
-[user]
-	name = Andreas
-
 [core]
 	editor = vim
 
@@ -24,7 +21,5 @@
 	tool = vimdiff
 
 [difftool]
+	prompt = false
 	trustExitCode = true
-
-[alias]
-	dt = difftool -d --no-prompt
