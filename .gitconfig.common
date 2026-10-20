@@ -19,3 +19,12 @@
 
 [core]
 	editor = vim
+
+[diff]
+	tool = vimdiff
+
+[difftool]
+	trustExitCode = true
+
+[alias]
+	dt = difftool -d --no-prompt
