@@ -100,26 +100,7 @@ let g:lsp_hover_ui = 'preview'
 let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
 let g:lsp_semantic_enabled = 1
-
-" vim-lsp only maps the standard LSP token types; rust-analyzer sends ~58 and
-" the rest would fall back to Normal. Map them explicitly (must come after the
-" colorscheme, which clears highlights, so vim-lsp leaves them alone).
-highlight link LspSemanticBuiltinType      Type
-highlight link LspSemanticSelfTypeKeyword  Type
-highlight link LspSemanticTypeAlias        Type
-highlight link LspSemanticConstParameter   Type
-highlight link LspSemanticSelfKeyword      Keyword
-highlight link LspSemanticLifetime         Identifier
-highlight link LspSemanticMacroBang        Macro
-highlight link LspSemanticProcMacro        Macro
-highlight link LspSemanticAttribute        PreProc
-highlight link LspSemanticDerive           PreProc
-highlight link LspSemanticBoolean          Constant
-highlight link LspSemanticNumber           Number
-highlight link LspSemanticFormatSpecifier  Special
-highlight link LspSemanticEscapeSequence   Special
-highlight link LspSemanticStatic           Constant
-highlight link LspSemanticUnresolvedReference Error
+" let g:lsp_document_symbol_detail = 1
 
 " gutter signs: E W I H by severity, A where a code action is available
 let g:lsp_diagnostics_signs_error = {'text': 'E'}
@@ -144,17 +125,21 @@ augroup END
 
 " LSP keymaps (normal mode, only in buffers with an LSP server)
 function! s:lsp_setup()
-  nmap <buffer> gd <plug>(lsp-definition)
-  nmap <buffer> <silent> gr <plug>(lsp-references)
-  nmap <buffer> K <plug>(lsp-hover)
-  nmap <buffer> <leader>rn <plug>(lsp-rename)
-  nmap <buffer> <leader>ca <plug>(lsp-code-action)
-  nmap <buffer> [d <plug>(lsp-previous-diagnostic)
-  nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    nmap <buffer> gd <plug>(lsp-definition)
+    nmap <buffer> <silent> gr <plug>(lsp-references)
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> <leader>cn <plug>(lsp-rename)
+    nmap <buffer> <leader>ca <plug>(lsp-code-action)
+    nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+    nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    nmap <buffer> <leader>fd :LspDocumentDiagnostics<CR>
+    nmap <buffer> <leader>fs :LspDocumentSymbolSearch<CR>
+    nmap <buffer> F :LspDocumentFormat<CR>
 
-  " Ctrl-d/Ctrl-u scroll the hover popup while it's open
-  nnoremap <buffer> <expr> <C-d> <SID>popup_scroll(+4, "\<C-d>")
-  nnoremap <buffer> <expr> <C-u> <SID>popup_scroll(-4, "\<C-u>")
+
+    " Ctrl-d/Ctrl-u scroll the hover popup while it's open
+    nnoremap <buffer> <expr> <C-d> <SID>popup_scroll(+4, "\<C-d>")
+    nnoremap <buffer> <expr> <C-u> <SID>popup_scroll(-4, "\<C-u>")
 endfunction
 
 " Scroll the LSP hover popup if it's open, otherwise do the key's normal job
@@ -166,7 +151,20 @@ function! s:popup_scroll(count, key) abort
   return a:key
 endfunction
 
+" Bracket matching colours: CursorMatch is the brace under the cursor, MatchParen
+" its match. slate defines only MatchParen (yellow); CursorMatch is then left
+" undefined and vim draws it as reverse video (the black block). Swapped here,
+" and re-applied on ColorScheme so a theme switch cannot wipe them.
+augroup my_highlight
+  autocmd!
+  autocmd ColorScheme *
+        \ highlight CursorMatch cterm=bold ctermfg=16 ctermbg=220 guifg=#000000 guibg=#ffd700 |
+        \ highlight MatchParen  cterm=bold ctermfg=220 ctermbg=16 guifg=#ffd700 guibg=#000000
+augroup END
+
+" ColorScheme already fired earlier in this file, so trigger it once by hand.
+doautocmd ColorScheme
+
 " TODO
 " Show git changes on the side?
-" Search for treesiter symboles?
-" More colors?
+" Setup opencode?
