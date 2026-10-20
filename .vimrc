@@ -46,6 +46,7 @@ endif
 
 " General settings
 set number
+set signcolumn=yes        " always reserve the gutter, so LSP signs don't shift the text
 set mouse=a
 set clipboard=unnamedplus
 
