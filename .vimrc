@@ -49,19 +49,21 @@ set number
 set signcolumn=yes        " always reserve the gutter, so LSP signs don't shift the text
 set mouse=a
 set clipboard=unnamedplus
-set termguicolors         " 24-bit colours (drop this if your terminal misrenders)
+" set termguicolors         " 24-bit colours (drop this if your terminal misrenders)
 colorscheme slate
 
 set expandtab           " Convert tabs to spaces
 set tabstop=4           " 1 tab = 4 spaces
 set shiftwidth=4        " Indent width
 set autoindent          " Copy indent from current line on new line
+set laststatus=2
 
 set ignorecase
 set smartcase
 set incsearch
 
-set scrolloff=8
+set scrolloff=16
+set timeoutlen=2500
 
 " Show a list of available autocompletions instead of selecting the first
 set wildmenu
@@ -86,11 +88,20 @@ nnoremap <leader>fl :Lines<CR>
 nnoremap <leader>b :Buffers<CR>
 nnoremap <leader>g :Rg<CR>
 
+let g:fzf_layout = { 'down': '30%' }
+
 " Move between windows with Ctrl-h/j/k/l
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
+
+" Quicklist
+nnoremap ]q :cnext<CR>
+nnoremap [q :cprev<CR>
+nnoremap ]Q :clast<CR>
+nnoremap [Q :cfirst<CR>
+nnoremap <leader>q :ccl
 
 " LSP (vim-lsp)
 set hidden                      " allow buffers to hide while LSP keeps them loaded
@@ -100,6 +111,8 @@ let g:lsp_hover_ui = 'preview'
 let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
 let g:lsp_semantic_enabled = 1
+let g:lsp_log_verbose = 1
+let g:lsp_log_file = expand('~/vim-lsp.log')
 " let g:lsp_document_symbol_detail = 1
 
 " gutter signs: E W I H by severity, A where a code action is available
@@ -110,7 +123,7 @@ let g:lsp_diagnostics_signs_hint = {'text': 'H'}
 let g:lsp_document_code_action_signs_hint = {'text': 'A'}
 
 " TODO consider: let g:lsp_settings_filetype_python = 'pyright-langserver'  " use pyright for Python
-let g:lsp_settings_filetype_rust = 'rust-analyzer' 
+let g:lsp_settings_filetype_rust = ['rust-analyzer']
 
 " asyncomplete popup
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
@@ -164,6 +177,9 @@ augroup END
 
 " ColorScheme already fired earlier in this file, so trigger it once by hand.
 doautocmd ColorScheme
+
+" HAMMERTIME
+source ~/dev/hammertime/vimplugin.vim
 
 " TODO
 " Show git changes on the side?
