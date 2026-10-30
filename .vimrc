@@ -124,11 +124,55 @@ let g:lsp_document_code_action_signs_hint = {'text': 'A'}
 
 " TODO consider: let g:lsp_settings_filetype_python = 'pyright-langserver'  " use pyright for Python
 let g:lsp_settings_filetype_rust = ['rust-analyzer']
+let g:lsp_settings_filetype_markdown = 'markdown-oxide' 
 
 " asyncomplete popup
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 inoremap <expr> <CR> pumvisible() ? asyncomplete#close_popup() . "\<CR>" : "\<CR>"
+
+" marksman path completion fix
+"
+" marksman returns link completions (e.g. in "[foo](./)") whose textEdit
+" replaces the whole link, so vim-lsp/asyncomplete-lsp turn them into items
+" like { word: '[foo](/b.md)', startcol: 1 }. asyncomplete's default matcher
+" then fuzzy-matches the entire typed text ("[foo](./b") against that word:
+" the typed '.' can never match before the '/', so every candidate is
+" discarded and the popup stays empty. Instead, filter on the last segment
+" typed (stopping at / ( [ # etc.) and match it against the candidate's
+" actual target name (abbr, e.g. "b.md").
+function! s:lsp_link_completion_filter(matches, startcol, base) abort
+    let l:frag = matchstr(a:base, '[^/()\[\]#[:space:]]*$')
+    let l:items = []
+    let l:startcols = []
+    for l:item in a:matches['items']
+        let l:key = get(l:item, 'abbr', l:item['word'])
+        if empty(l:frag) || !empty(matchfuzzy([l:key], l:frag))
+            call add(l:items, l:item)
+            call add(l:startcols, a:startcol)
+        endif
+    endfor
+    return [l:items, l:startcols]
+endfunction
+
+function! s:patch_lsp_completion_filters() abort
+    for l:name in asyncomplete#get_source_names()
+        if l:name !=# 'asyncomplete_lsp_marksman'
+            continue
+        endif
+        let l:info = asyncomplete#get_source_info(l:name)
+        if !has_key(l:info, 'filter')
+            let l:info['filter'] = function('s:lsp_link_completion_filter')
+            call asyncomplete#register_source(l:info)
+        endif
+    endfor
+endfunction
+
+augroup lsp_marksman_completion_fix
+    autocmd!
+    " fires after asyncomplete-lsp registers the source (same event, later)
+    autocmd User lsp_server_init call s:patch_lsp_completion_filters()
+augroup END
 
 augroup lsp_install
   au!
