@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+usage: oc <command> [args]
+
+commands:
+  build                 build the opencode image
+  run NAME [MOUNTPOINT] run a container and start tmux session "main"
+  attach NAME           attach to the tmux session "main"
+EOF
+}
+
+cmd_build() {
+  podman build -f "$HOME/.config/box/tags/opencode.Containerfile" -t opencode
+}
+
+cmd_run() {
+  local name="${1:?usage: oc run NAME [MOUNTPOINT]}"
+  local mount
+  mount="$(realpath "${2:-$PWD}")"
+  podman run --name "$name" -itd --replace \
+    -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -e TERM=xterm-256color -e COLORTERM=truecolor \
+    --security-opt no-new-privileges --cap-drop ALL \
+    --pids-limit 512 --memory 4g \
+    --mount "type=bind,src=$HOME/.config/opencode/opencode.json,dst=/home/node/.config/opencode/opencode.json,ro,relabel=private" \
+    -v opencode-data:/home/node/.local/share/opencode \
+    --mount "type=bind,src=$mount,dst=$mount,relabel=private" \
+    -w "$mount" \
+    opencode tmux new -s main opencode
+}
+
+cmd_attach() {
+  local name="${1:?usage: oc attach NAME}"
+  podman exec -it "$name" tmux attach -t main
+}
+
+case "${1:-}" in
+  build)  shift; cmd_build "$@" ;;
+  run)    shift; cmd_run "$@" ;;
+  attach) shift; cmd_attach "$@" ;;
+  -h|--help|help|"") usage ;;
+  *) usage >&2; exit 1 ;;
+esac
