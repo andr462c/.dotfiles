@@ -1,34 +1,61 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+BASE_DIR=$(dirname ${BASH_SOURCE[0]})
+
+SQUID_CONF="$BASE_DIR/squid.conf"
+ALLOWED_DOMAINS="$BASE_DIR/allowed_domains.txt"
+OPENCODE_JSON="$BASE_DIR/opencode.json"
+CONTAINERFILE="$BASE_DIR/Containerfile"
+
 usage() {
   cat <<EOF
 usage: oc <command> [args]
 
 commands:
-  build                 build the opencode image
+  setup                 setup the opencode image and proxy
   run NAME [MOUNTPOINT] run a container and start tmux session "main"
   attach NAME           attach to the tmux session "main"
 EOF
 }
 
-cmd_build() {
-  podman build -f "$HOME/.config/box/tags/opencode.Containerfile" -t opencode
+cmd_setup() {
+  podman build -f "$CONTAINERFILE" -t opencode "$BASE_DIR"
+  podman network create --internal --ignore contained_net
+  podman network create --ignore proxy_net
+  podman pod create --name agent \
+    --network contained_net --userns=keep-id:uid=1000,gid=1000 --replace
+  podman run --pull newer -d --name proxy \
+    --network contained_net,proxy_net \
+    -v $SQUID_CONF:/etc/squid/squid.conf:ro,Z \
+    -v $ALLOWED_DOMAINS:/etc/squid/allowed_domains.txt:ro,Z \
+    --replace \
+    docker.io/ubuntu/squid:latest
 }
+
+PROXY_ENV='-e HTTP_PROXY=http://proxy:3128 -e HTTPS_PROXY=http://proxy:3128 -e NO_PROXY=localhost,127.0.0.1'
 
 cmd_run() {
   local name="${1:?usage: oc run NAME [MOUNTPOINT]}"
   local mount
   mount="$(realpath "${2:-$PWD}")"
-  podman run --name "$name" -itd --replace \
+  podman run --name "$name" --pod agent -itd --replace \
+    $PROXY_ENV \
     -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 -e TERM=xterm-256color -e COLORTERM=truecolor \
-    --security-opt no-new-privileges --cap-drop ALL \
+    --user 1000:1000 \
+    --cap-drop=all --security-opt no-new-privileges \
     --pids-limit 512 --memory 4g \
-    --mount "type=bind,src=$HOME/.config/opencode/opencode.json,dst=/home/node/.config/opencode/opencode.json,ro,relabel=private" \
+    --mount "type=bind,src=$OPENCODE_JSON,dst=/home/node/.config/opencode/opencode.json,ro,relabel=private" \
     -v opencode-data:/home/node/.local/share/opencode \
     --mount "type=bind,src=$mount,dst=$mount,relabel=private" \
     -w "$mount" \
-    opencode tmux new -s main opencode
+    opencode tmux new -s main opencode >/dev/null
+  local i
+  for i in $(seq 50); do
+    podman exec "$name" tmux has-session -t main 2>/dev/null && break
+    sleep 0.2
+  done
+  cmd_attach "$name"
 }
 
 cmd_attach() {
@@ -37,7 +64,7 @@ cmd_attach() {
 }
 
 case "${1:-}" in
-  build)  shift; cmd_build "$@" ;;
+  setup)  shift; cmd_setup "$@" ;;
   run)    shift; cmd_run "$@" ;;
   attach) shift; cmd_attach "$@" ;;
   -h|--help|help|"") usage ;;

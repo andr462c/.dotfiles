@@ -1,0 +1,4 @@
+.anthropic.com
+.opencode.ai
+registry.npmjs.org
+gpu05

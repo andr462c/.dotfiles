@@ -1,0 +1,22 @@
+# Image for `oc`. Runs as the non-root `node` user (uid 1000); `oc run` maps the
+# invoking host user onto it with --userns=keep-id:uid=1000,gid=1000.
+# No sudo: the agent gets no way back to root inside the container.
+FROM docker.io/library/node:22-bookworm
+
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        less procps ripgrep tmux \
+    && rm -rf /var/lib/apt/lists/*
+
+# OpenCode 2.x is published as @opencode/cli (opencode-ai stays on 1.x).
+RUN npm install -g @opencode/cli && npm cache clean --force
+
+# Pre-create dirs that oc bind-mounts/volumes into, owned by node. Otherwise
+# podman creates missing parents root-owned and opencode fails with EACCES.
+RUN mkdir -p /home/node/.config/opencode /home/node/.local/share/opencode \
+        /home/node/.local/state /home/node/.cache \
+    && chown -R node:node /home/node
+
+ENV LANG=C.UTF-8 HOME=/home/node
+USER node
+WORKDIR /home/node
