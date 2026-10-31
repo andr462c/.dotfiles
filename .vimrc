@@ -143,8 +143,8 @@ let g:lsp_hover_ui = 'preview'
 let g:lsp_diagnostics_echo_cursor = 1  " echo diagnostic under cursor
 let g:lsp_diagnostics_virtual_text_enabled = 0  " no inline error text at end of lines
 let g:lsp_semantic_enabled = 1
-let g:lsp_log_verbose = 1
-let g:lsp_log_file = expand('~/vim-lsp.log')
+" let g:lsp_log_verbose = 1
+" let g:lsp_log_file = expand('~/vim-lsp.log')
 " let g:lsp_document_symbol_detail = 1
 
 " gutter signs: E W I H by severity, A where a code action is available
