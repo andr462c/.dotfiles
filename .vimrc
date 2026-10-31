@@ -64,7 +64,8 @@ set incsearch
 
 set scrolloff=16
 set timeoutlen=2500
-
+set splitright
+set splitbelow
 " Show a list of available autocompletions instead of selecting the first
 set wildmenu
 set wildmode=longest:list
@@ -102,6 +103,37 @@ nnoremap [q :cprev<CR>
 nnoremap ]Q :clast<CR>
 nnoremap [Q :cfirst<CR>
 nnoremap <leader>q :ccl
+
+" Git
+nnoremap <leader>gb :execute 'silent !git gui blame --line=' . line('.') . ' ' . shellescape(expand('%')) . ' &'<CR>
+function! s:GitDiffHead() abort
+  let l:file = expand('%')
+  let l:ft = &filetype
+  let l:view = winsaveview()
+  let l:lines = systemlist('git show HEAD:./' . shellescape(l:file))
+  if v:shell_error
+    echohl ErrorMsg | echo join(l:lines, "\n") | echohl None
+    return
+  endif
+  let l:win = win_getid()
+
+  vert new
+  setlocal buftype=nofile bufhidden=wipe noswapfile
+  call setline(1, l:lines)
+  let &l:filetype = l:ft
+  setlocal nomodifiable
+  diffthis
+  setlocal nofoldenable
+  nnoremap <buffer> q :diffoff!<Bar>q<CR>
+
+  call win_gotoid(l:win)
+  diffthis
+  setlocal nofoldenable
+  call winrestview(l:view)
+endfunction
+
+command! GitDiffHead call s:GitDiffHead()
+nnoremap <leader>gd :GitDiffHead<CR>
 
 " LSP (vim-lsp)
 set hidden                      " allow buffers to hide while LSP keeps them loaded
