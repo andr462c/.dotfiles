@@ -20,14 +20,5 @@
         }
       }
     }
-  },
-  "permission": {
-    "bash": {
-      "*": "ask",
-      "git status *": "allow",
-      "git diff *": "allow",
-      "rm *": "deny",
-      "grep *": "allow"
-    }
   }
 }

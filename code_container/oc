@@ -16,6 +16,7 @@ commands:
   setup                 setup the opencode image and proxy
   run NAME [MOUNTPOINT] run a container and start tmux session "main"
   attach NAME           attach to the tmux session "main"
+  forward NAME text     forward arguments to container using tmux
 EOF
 }
 
@@ -63,10 +64,15 @@ cmd_attach() {
   podman exec -it "$name" tmux attach -t main
 }
 
+cmd_forward() {
+    podman exec $1 tmux send-keys -t main ${@:2}
+}
+
 case "${1:-}" in
   setup)  shift; cmd_setup "$@" ;;
   run)    shift; cmd_run "$@" ;;
   attach) shift; cmd_attach "$@" ;;
+  forward) shift; cmd_forward "$@" ;;
   -h|--help|help|"") usage ;;
   *) usage >&2; exit 1 ;;
 esac

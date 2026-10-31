@@ -1,1 +1,1 @@
-alias oc='$HOME/code_container/oc'
+export PATH="$HOME/code_container/:$PATH"
