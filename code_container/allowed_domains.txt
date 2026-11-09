@@ -1,4 +1,10 @@
 .anthropic.com
 .opencode.ai
 registry.npmjs.org
-gpu05
+gpu05.emu-buri.ts.net
+.github.com
+.githubcopilot.com
+.crates.io
+.google.com
+.githubusercontent.com
+.tavily.com

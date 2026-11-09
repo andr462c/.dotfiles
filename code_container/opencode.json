@@ -6,7 +6,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "name": "Local (gpu05)",
       "options": {
-        "baseURL": "http://gpu05:7547/v1",
+        "baseURL": "http://gpu05.emu-buri.ts.net:8051/v1",
         "apiKey": "none"
       },
       "models": {

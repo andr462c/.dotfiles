@@ -3,13 +3,24 @@
 # No sudo: the agent gets no way back to root inside the container.
 FROM docker.io/library/node:22-bookworm
 
+# build-essential/lld/cmake/libssl-dev: Rust + C/C++ builds in ~/dev/mono
+# (rustweb links with -fuse-ld=lld; python-web/backend use CMake).
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        less procps ripgrep tmux \
+        less procps ripgrep tmux jq pipx \
+        build-essential lld cmake libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # OpenCode 2.x is published as @opencode/cli (opencode-ai stays on 1.x).
 RUN npm install -g @opencode/cli && npm cache clean --force
+
+# pnpm via corepack, pre-fetched so it works without network at runtime.
+# COREPACK_HOME lives outside $HOME so the root-time download is visible to node
+# and isn't hidden by a volume mounted over ~/.cache.
+ENV COREPACK_HOME=/usr/local/share/corepack COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable \
+    && corepack prepare pnpm@10.32.1 --activate \
+    && chmod -R a+rX "$COREPACK_HOME"
 
 # Pre-create dirs that oc bind-mounts/volumes into, owned by node. Otherwise
 # podman creates missing parents root-owned and opencode fails with EACCES.
@@ -20,3 +31,12 @@ RUN mkdir -p /home/node/.config/opencode /home/node/.local/share/opencode \
 ENV LANG=C.UTF-8 HOME=/home/node
 USER node
 WORKDIR /home/node
+
+RUN curl https://sh.rustup.rs -sSfy | sh
+# Rust (stable, via rustup) with clippy + rustfmt for mono's validate scripts.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+        --profile minimal --component clippy --component rustfmt \
+    && rm -rf /home/node/.cargo/registry
+ENV PATH=/home/node/.cargo/bin:/home/node/.local/bin:$PATH
+
+RUN pipx install mypy
